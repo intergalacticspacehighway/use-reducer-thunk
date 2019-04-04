@@ -6,7 +6,7 @@ function useReducerWithThunk(reducer, initialState) {
     
     let customDispatch = (action) => {
         if(typeof action === 'function'){
-            action(dispatch, state);
+            action(customDispatch, state);
         }else{
             dispatch(action);
         }
