@@ -1,6 +1,7 @@
+import React from "react";
 import { useReducer } from "react";
 
-export function useReducerWithThunk(reducer, initialState) {
+function useReducerWithThunk(reducer, initialState) {
     const [state, dispatch] = useReducer(reducer, initialState);
     
     let customDispatch = (action) => {
