@@ -1,7 +1,7 @@
 {
   "name": "use-reducer-thunk",
-  "version": "1.0.0",
-  "description": "Thunk support for react's useReducer hook",
+  "version": "1.0.1",
+  "description": "Thunk like action creator support for react's useReducer hook",
   "main": "build/index.js",
   "peerDependencies": {
     "react": "^16.8.0"
@@ -17,6 +17,7 @@
   },
   "keywords": [
     "thunk",
+    "react-hooks",
     "useReducer"
   ],
   "author": "Nishan B <nishanbende@gmail.com>",
