@@ -5,7 +5,7 @@
 import useReducerWithThunk from "use-reducer-thunk";
 
 function App() {
-    const [state, dispatch] = useReducerWithThunk(reducerFn, initialState); 
+    const [state, dispatch] = useReducerWithThunk(reducerFn, initialState, name // Optional for redux dev tools); 
     function fetchData() {
         dispatch(fetchDataActionCreator());
     }
@@ -14,7 +14,7 @@ function App() {
 }
 
 function fetchDataActionCreator = () => 
-    async (dispatch, state) => {
+    async (dispatch) => {
         dispatch({type:"FETCH"});
         try {
             const response = await fetch("https://my-request-url.com/");
