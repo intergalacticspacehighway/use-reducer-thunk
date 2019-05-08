@@ -58,6 +58,7 @@ function useReducerWithThunk(reducer, initialState, name) {
     return () => {
       if (withDevTools) {
         subscribers[memoizedValue.prototype.name]();
+        subscribers[memoizedValue.prototype.name] = undefined;
         stores[memoizedValue.prototype.name] = undefined;
       }
     };
