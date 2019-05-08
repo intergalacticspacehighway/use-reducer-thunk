@@ -19,47 +19,44 @@ const devToolReducer = reducer => (state, action) => {
 };
 
 function useReducerWithThunk(reducer, initialState, name) {
-  let memoizedValue = reducer;
+  let memoizedReducer = reducer;
 
   // Memoizing to prevent recreation of devtoolReducer on each render.
   if (withDevTools) {
-    memoizedValue = useMemo(() => devToolReducer(reducer), [reducer]);
+    memoizedReducer = useMemo(() => devToolReducer(reducer), [reducer]);
   }
 
-  const [state, dispatch] = useReducer(memoizedValue, initialState);
+  const [state, dispatch] = useReducer(memoizedReducer, initialState);
 
   useEffect(() => {
     if (withDevTools) {
-      if (stores[name]) {
-        throw new Error("Name already exists ", name);
-      }
-      memoizedValue.prototype.name = name;
-      if (!memoizedValue.prototype.name) {
-        memoizedValue.prototype.name = document.title + "_" + counter;
-        counter++;
+      memoizedReducer.prototype.name = getReducerName(name);
+
+      if (stores[memoizedReducer.prototype.name]) {
+        throw new Error("More than one useReducerWithThunk have same name");
       }
 
       stores[
-        memoizedValue.prototype.name
+        memoizedReducer.prototype.name
       ] = window.__REDUX_DEVTOOLS_EXTENSION__(reducer, initialState, {
-        name: memoizedValue.prototype.name
+        name: memoizedReducer.prototype.name
       });
 
-      subscribers[memoizedValue.prototype.name] = stores[
-        memoizedValue.prototype.name
+      subscribers[memoizedReducer.prototype.name] = stores[
+        memoizedReducer.prototype.name
       ].subscribe(() => {
         dispatch({
           type: REDUX_DEVTOOL_SET_STATE,
-          state: stores[memoizedValue.prototype.name].getState()
+          state: stores[memoizedReducer.prototype.name].getState()
         });
       });
     }
 
     return () => {
       if (withDevTools) {
-        subscribers[memoizedValue.prototype.name]();
-        subscribers[memoizedValue.prototype.name] = undefined;
-        stores[memoizedValue.prototype.name] = undefined;
+        subscribers[memoizedReducer.prototype.name]();
+        subscribers[memoizedReducer.prototype.name] = undefined;
+        stores[memoizedReducer.prototype.name] = undefined;
       }
     };
   }, []);
@@ -68,8 +65,8 @@ function useReducerWithThunk(reducer, initialState, name) {
     if (typeof action === "function") {
       return action(customDispatch);
     } else {
-      if (withDevTools && stores[memoizedValue.prototype.name]) {
-        stores[memoizedValue.prototype.name].dispatch(action);
+      if (withDevTools && stores[memoizedReducer.prototype.name]) {
+        stores[memoizedReducer.prototype.name].dispatch(action);
       } else {
         dispatch(action);
       }
@@ -78,4 +75,13 @@ function useReducerWithThunk(reducer, initialState, name) {
 
   return [state, customDispatch];
 }
+
+const getReducerName = name => {
+  if (!name) {
+    const newName = document.title + "_" + counter;
+    counter++;
+    return newName;
+  }
+  return name;
+};
 export default useReducerWithThunk;
