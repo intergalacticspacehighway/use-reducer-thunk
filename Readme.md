@@ -1,6 +1,9 @@
-## useReducer with thunk
+## useReducer with thunk and redux devtools
+
 ### To get it working:
+
 #### Async counter example
+
 - The below example will set a redux devtool instance with name useReducerThunk_example.
 
 ```
@@ -100,4 +103,3 @@ function App() {
 export default App;
 
 ```
-
