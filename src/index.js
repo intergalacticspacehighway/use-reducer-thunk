@@ -2,10 +2,9 @@ import { useReducer, useMemo, useEffect } from "react";
 
 let stores = {};
 let subscribers = {};
-let counter = 0;
 
 const REDUX_DEVTOOL_SET_STATE = "REDUX_DEVTOOL_SET_STATE";
-const withDevTools = name => {
+const withDevTools = (name) => {
   return (
     name &&
     process.env.NODE_ENV === "development" &&
@@ -14,7 +13,7 @@ const withDevTools = name => {
   );
 };
 
-const devToolReducer = reducer => (state, action) => {
+const devToolReducer = (reducer) => (state, action) => {
   if (action.type === REDUX_DEVTOOL_SET_STATE) {
     return action.state;
   } else {
@@ -25,6 +24,7 @@ const devToolReducer = reducer => (state, action) => {
 function useReducerWithThunk(reducer, initialState, name) {
   let memoizedReducer = reducer;
   let shouldConfigDevTools = withDevTools(name);
+  const nameWithUniqueNameSpace = getReducerName(name);
 
   // Memoizing to prevent recreation of devtoolReducer on each render.
   if (shouldConfigDevTools) {
@@ -35,45 +35,45 @@ function useReducerWithThunk(reducer, initialState, name) {
 
   useEffect(() => {
     if (shouldConfigDevTools) {
-      memoizedReducer.prototype.name = getReducerName(name);
-
-      if (stores[memoizedReducer.prototype.name]) {
+      if (stores[name]) {
         throw new Error("More than one useReducerWithThunk have same name");
       }
 
-      stores[
-        memoizedReducer.prototype.name
-      ] = window.__REDUX_DEVTOOLS_EXTENSION__(reducer, initialState, {
-        name: memoizedReducer.prototype.name
-      });
+      stores[nameWithUniqueNameSpace] = window.__REDUX_DEVTOOLS_EXTENSION__(
+        reducer,
+        initialState,
+        {
+          name: nameWithUniqueNameSpace,
+        }
+      );
 
-      subscribers[memoizedReducer.prototype.name] = stores[
-        memoizedReducer.prototype.name
+      subscribers[nameWithUniqueNameSpace] = stores[
+        nameWithUniqueNameSpace
       ].subscribe(() => {
         dispatch({
           type: REDUX_DEVTOOL_SET_STATE,
-          state: stores[memoizedReducer.prototype.name].getState()
+          state: stores[nameWithUniqueNameSpace].getState(),
         });
       });
     }
 
     return () => {
       if (shouldConfigDevTools) {
-        subscribers[memoizedReducer.prototype.name]();
-        subscribers[memoizedReducer.prototype.name] = undefined;
-        stores[memoizedReducer.prototype.name] = undefined;
+        subscribers[nameWithUniqueNameSpace]();
+        subscribers[nameWithUniqueNameSpace] = undefined;
+        stores[nameWithUniqueNameSpace] = undefined;
       }
     };
   }, []);
 
-  const getState = () => state
+  const getState = () => state;
 
-  const customDispatch = action => {
+  const customDispatch = (action) => {
     if (typeof action === "function") {
       return action(customDispatch, getState);
     } else {
-      if (shouldConfigDevTools && stores[memoizedReducer.prototype.name]) {
-        stores[memoizedReducer.prototype.name].dispatch(action);
+      if (shouldConfigDevTools && stores[nameWithUniqueNameSpace]) {
+        stores[nameWithUniqueNameSpace].dispatch(action);
       } else {
         dispatch(action);
       }
@@ -83,12 +83,8 @@ function useReducerWithThunk(reducer, initialState, name) {
   return [state, customDispatch];
 }
 
-const getReducerName = name => {
-  if (!name) {
-    const newName = document.title + "_" + counter;
-    counter++;
-    return newName;
-  }
-  return name;
+const getReducerName = (name) => {
+  return "userReducerThunk_" + name;
 };
+
 export default useReducerWithThunk;
