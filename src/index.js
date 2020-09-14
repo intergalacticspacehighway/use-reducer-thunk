@@ -66,9 +66,11 @@ function useReducerWithThunk(reducer, initialState, name) {
     };
   }, []);
 
+  const getState = () => state
+
   const customDispatch = action => {
     if (typeof action === "function") {
-      return action(customDispatch);
+      return action(customDispatch, getState);
     } else {
       if (shouldConfigDevTools && stores[memoizedReducer.prototype.name]) {
         stores[memoizedReducer.prototype.name].dispatch(action);
