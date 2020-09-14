@@ -1,7 +1,10 @@
 import React from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import useReducerWithThunk from "../../src/index";
+import useReducerWithThunk from "use-reducer-thunk";
+
+// Uncomment below line to test code from src
+// import useReducerWithThunk from "../../src/index";
 
 function reducer(state, action) {
   switch (action.type) {

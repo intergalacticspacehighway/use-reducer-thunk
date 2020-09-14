@@ -1,20 +1,19 @@
 {
   "name": "use-reducer-thunk",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "Thunk like action creator support for react's useReducer hook",
-  "main": "build/index.js",
+  "main": "src/index.js",
   "peerDependencies": {
     "react": "^16.8.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --watch",
-    "build": "webpack",
-    "prepublish": "npm run build"
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Sunny-Nishan/use-reducer-thunk.git"
+    "url": "git+https://github.com/intergalacticspacehighway/use-reducer-thunk.git"
   },
   "keywords": [
     "thunk",
@@ -24,12 +23,9 @@
   "author": "Nishan B <nishanbende@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Sunny-Nishan/use-reducer-thunk/issues"
+    "url": "https://github.com/intergalacticspacehighway/use-reducer-thunk/issues"
   },
-  "homepage": "https://github.com/Sunny-Nishan/use-reducer-thunk#readme",
-  "dependencies": {
-    "react": "^16.8.6"
-  },
+  "homepage": "https://github.com/intergalacticspacehighway/use-reducer-thunk#readme",
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "babel-loader": "^8.0.5",
