@@ -1,4 +1,4 @@
-import { useReducer, useMemo, useEffect } from "react";
+import { useReducer, useMemo, useEffect, useRef } from "react";
 
 let stores = {};
 let subscribers = {};
@@ -22,16 +22,20 @@ const devToolReducer = (reducer) => (state, action) => {
 };
 
 function useReducerWithThunk(reducer, initialState, name) {
-  let memoizedReducer = reducer;
   let shouldConfigDevTools = withDevTools(name);
   const nameWithUniqueNameSpace = getReducerName(name);
 
   // Memoizing to prevent recreation of devtoolReducer on each render.
-  if (shouldConfigDevTools) {
-    memoizedReducer = useMemo(() => devToolReducer(reducer), [reducer]);
-  }
+  const memoizedReducer = useMemo(() => {
+    return shouldConfigDevTools ? devToolReducer(reducer) : reducer;
+  }, [reducer, shouldConfigDevTools]);
 
   const [state, dispatch] = useReducer(memoizedReducer, initialState);
+
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const getState = () => stateRef.current;
 
   useEffect(() => {
     if (shouldConfigDevTools) {
@@ -65,8 +69,6 @@ function useReducerWithThunk(reducer, initialState, name) {
       }
     };
   }, []);
-
-  const getState = () => state;
 
   const customDispatch = (action) => {
     if (typeof action === "function") {
