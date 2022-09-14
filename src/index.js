@@ -22,14 +22,13 @@ const devToolReducer = (reducer) => (state, action) => {
 };
 
 function useReducerWithThunk(reducer, initialState, name) {
-  let memoizedReducer = reducer;
   let shouldConfigDevTools = withDevTools(name);
   const nameWithUniqueNameSpace = getReducerName(name);
 
   // Memoizing to prevent recreation of devtoolReducer on each render.
-  if (shouldConfigDevTools) {
-    memoizedReducer = useMemo(() => devToolReducer(reducer), [reducer]);
-  }
+  const memoizedReducer = useMemo(() => {
+    return shouldConfigDevTools ? devToolReducer(reducer) : reducer;
+  }, [reducer, shouldConfigDevTools]);
 
   const [state, dispatch] = useReducer(memoizedReducer, initialState);
 
