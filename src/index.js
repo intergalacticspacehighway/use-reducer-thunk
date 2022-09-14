@@ -1,4 +1,4 @@
-import { useReducer, useMemo, useEffect } from "react";
+import { useReducer, useMemo, useEffect, useRef } from "react";
 
 let stores = {};
 let subscribers = {};
@@ -33,6 +33,11 @@ function useReducerWithThunk(reducer, initialState, name) {
 
   const [state, dispatch] = useReducer(memoizedReducer, initialState);
 
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const getState = () => stateRef.current;
+
   useEffect(() => {
     if (shouldConfigDevTools) {
       if (stores[name]) {
@@ -65,8 +70,6 @@ function useReducerWithThunk(reducer, initialState, name) {
       }
     };
   }, []);
-
-  const getState = () => state;
 
   const customDispatch = (action) => {
     if (typeof action === "function") {
