@@ -1,34 +1,54 @@
-import { useReducer, useMemo, useEffect, useRef } from "react";
+// eslint-disable-file @typescript-eslint/ban-ts-comment
 
-let stores = {};
-let subscribers = {};
+import { useReducer, useMemo, useEffect, useRef, Reducer } from "react";
+
+type NotFunction<A> = Exclude<A, Function>;
+type ThunkAction<S, A> = (
+  dispatch: DispatchFunc<S, A>,
+  getState: () => S
+) => void;
+type VariantAction<S, A> = NotFunction<A> | ThunkAction<S, A>;
+type DispatchFunc<S, A> = (action: VariantAction<S, A>) => void;
+
+let stores: Record<string, unknown> = {};
+let subscribers: Record<string, unknown> = {};
 
 const REDUX_DEVTOOL_SET_STATE = "REDUX_DEVTOOL_SET_STATE";
-const withDevTools = (name) => {
+const withDevTools = (name: string) => {
   return (
     name &&
     process.env.NODE_ENV === "development" &&
     typeof window !== "undefined" &&
+    // @ts-ignore
     window.__REDUX_DEVTOOLS_EXTENSION__
   );
 };
 
-const devToolReducer = (reducer) => (state, action) => {
-  if (action.type === REDUX_DEVTOOL_SET_STATE) {
-    return action.state;
-  } else {
-    return reducer(state, action);
-  }
-};
+const devToolReducer =
+  <S, A>(reducer: Reducer<S, A>) =>
+  (state: S, action: A) => {
+    // @ts-ignore
+    if (action.type === REDUX_DEVTOOL_SET_STATE) {
+      // @ts-ignore
+      return action.state;
+    } else {
+      return reducer(state, action);
+    }
+  };
 
-function useReducerWithThunk(reducer, initialState, name) {
+function useReducerWithThunk<S, A>(
+  reducer: Reducer<S, A>,
+  initialState: S,
+  name = ""
+): [S, DispatchFunc<S, A>] {
   let shouldConfigDevTools = withDevTools(name);
   const nameWithUniqueNameSpace = getReducerName(name);
 
   // Memoizing to prevent recreation of devtoolReducer on each render.
-  const memoizedReducer = useMemo(() => {
-    return shouldConfigDevTools ? devToolReducer(reducer) : reducer;
-  }, [reducer, shouldConfigDevTools]);
+  const memoizedReducer = useMemo(
+    () => (shouldConfigDevTools ? devToolReducer(reducer) : reducer),
+    [reducer, shouldConfigDevTools]
+  );
 
   const [state, dispatch] = useReducer(memoizedReducer, initialState);
 
@@ -43,6 +63,7 @@ function useReducerWithThunk(reducer, initialState, name) {
         throw new Error("More than one useReducerWithThunk have same name");
       }
 
+      // @ts-ignore
       stores[nameWithUniqueNameSpace] = window.__REDUX_DEVTOOLS_EXTENSION__(
         reducer,
         initialState,
@@ -51,11 +72,14 @@ function useReducerWithThunk(reducer, initialState, name) {
         }
       );
 
+      // @ts-ignore
       subscribers[nameWithUniqueNameSpace] = stores[
         nameWithUniqueNameSpace
       ].subscribe(() => {
+        // @ts-ignore
         dispatch({
           type: REDUX_DEVTOOL_SET_STATE,
+          // @ts-ignore
           state: stores[nameWithUniqueNameSpace].getState(),
         });
       });
@@ -63,6 +87,7 @@ function useReducerWithThunk(reducer, initialState, name) {
 
     return () => {
       if (shouldConfigDevTools) {
+        // @ts-ignore
         subscribers[nameWithUniqueNameSpace]();
         subscribers[nameWithUniqueNameSpace] = undefined;
         stores[nameWithUniqueNameSpace] = undefined;
@@ -70,11 +95,13 @@ function useReducerWithThunk(reducer, initialState, name) {
     };
   }, []);
 
-  const customDispatch = (action) => {
+  const customDispatch: DispatchFunc<S, A> = (action) => {
     if (typeof action === "function") {
-      return action(customDispatch, getState);
+      // @ts-ignore
+      action(customDispatch, getState);
     } else {
       if (shouldConfigDevTools && stores[nameWithUniqueNameSpace]) {
+        // @ts-ignore
         stores[nameWithUniqueNameSpace].dispatch(action);
       } else {
         dispatch(action);
@@ -85,7 +112,7 @@ function useReducerWithThunk(reducer, initialState, name) {
   return [state, customDispatch];
 }
 
-const getReducerName = (name) => {
+const getReducerName = (name: string) => {
   return "userReducerThunk_" + name;
 };
 
